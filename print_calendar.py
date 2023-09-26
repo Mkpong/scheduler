@@ -1,5 +1,6 @@
 import datetime as dt
 import calendar as cld
+import json
 
 
 today = dt.date.today()
@@ -13,24 +14,20 @@ month_eng = { 1 : 'January', 2 : 'February', 3 : 'March', 4 : 'April', 5 : 'May'
 
 # 날짜를 입력하면 그에 맞는 달력 출력. clean ver (duty 표시 x)
 class print_clean_monthly_calendar:
-    def __init__(self, yyyy, mm, dd):
+    def __init__(self, yyyy, mm):
 
         self.yyyy   = yyyy
         self.mm     = mm
-        self.dd     = dd
-
-        self.date_ymd       = dt.date(self.yyyy, self.mm, self.dd)          # 날짜를 datetime형으로 저장
+  
         self.first_weekday  = cld.monthrange(self.yyyy, self.mm)[0] + 1     # 01일의 요일, 월요일은 1 저장, 일요일은 7 저장
         self.last_day       = cld.monthrange(self.yyyy, self.mm)[1]         # 월의 마지막 일 저장
         self.cnt_weekday    = self.first_weekday                            # dd 출력시 필요
 
-    def days(self, yyyy, mm, dd):
+    def days(self, yyyy, mm):
 
         self.yyyy = yyyy
         self.mm = mm
-        self.dd = dd
 
-        self.date_ymd       = dt.date(self.yyyy, self.mm, self.dd)
         self.first_weekday  = cld.monthrange(self.yyyy, self.mm)[0] + 1
         self.last_day       = cld.monthrange(self.yyyy, self.mm)[1]
         self.cnt_weekday    = self.first_weekday
@@ -79,12 +76,31 @@ class print_clean_monthly_calendar:
                 self.cnt_weekday = 0
         
         print("=======" * 7)    # 달력의 마지막 부분
+    
+    # Json 보내려고 
+    def clean_monthly_calendar_json (self):
+        
+        return_json = {"yyyy" : self.yyyy, "mm" : self.mm, "first_weekday" : self.first_weekday, "last_day" : self.last_day}
+
+        return return_json
+    
+    
 
 
 # 캘린더 정상 작동 확인
-a = print_clean_monthly_calendar(today.year, today.month, today.day)
+a = print_clean_monthly_calendar(today.year, today.month)
 a.print_mm_yyyy_weekday_blank()
 a.print_dd_clean_ver()
+
+
+# json 확인
+print("ddddddddddddd")
+print(a.clean_monthly_calendar_json())
+d = a.clean_monthly_calendar_json()
+
+jsonn = json.dumps(d, ensure_ascii=False)
+print(type(jsonn))
+
 
 
 ########################################### week와 duty를 matching ###########################################
