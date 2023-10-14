@@ -38,35 +38,22 @@ def duty(yyyy, mm, dd):
     weeks = (date_interval // 7) % 3    # 0이면 조간, 1이면 주간, 2면 야간
     days  = (date_interval % 7) + 1     # 요일
 
-    duty = [dutylist[weeks]['duty'], dutylist[weeks][days]]     # duty[0] = '근무 조', duty[1] = '근무 시간대
+    duty = [dutylist[weeks]['duty'], dutylist[weeks][days]]     # duty[0] = '근무 조', duty[1] = '근무 시간대'
+
+
+
 
     return(duty)
 
 
-'''
-break 해당 날짜
-[음력]
-설 당일, 전후 1일씩
-[양력]
-신정, 광복절.
-
-해당하지 않는 날짜
-[음력]
-설과 추석의 대체 공휴일, 
-[양력]
-3.1절
-어린이날, 부처님 오신 날, 현충일, 개천절, 한글날, 근로자의 날
-'''
+# 양력과 음력 휴무일. 월, 일 순으로 저장
 solar_break = [[1, 1], [8, 15]]
 lunar_break = [[12, 30], [1, 1], [1, 2], [8, 14], [8, 15], [8, 16]]
 
-solar_break.append([1, 1])
-
-
-
+'''
 def check_break(mm, dd):
     check_break = 0
-    lunar = KoreanLunarCalendar()
+    
 
     
 
@@ -74,4 +61,10 @@ def check_break(mm, dd):
 
 
 
-    return(check_break)
+    return(check_break) 
+    '''    
+#print(check_break(8, 15))
+
+lunar = KoreanLunarCalendar()
+lunar.setSolarDate(2023, 10, 15)
+print(type(lunar.LunarIsoFormat()))
