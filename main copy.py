@@ -1,7 +1,6 @@
 import datetime as dt
 import calendar as cld
 import json
-import duty
 
 
 '''
@@ -10,6 +9,39 @@ import duty
 [요일]  1: 월, 2: 화, 3: 수, 4: 목, 5: 금, 6: 토, 7: 일
 [연] yyyy, [월] mm, [일] dd
 '''
+
+
+################################ duty matching ###############################
+# 특정 날짜의 주와 요일에 해당하는 근무 조와 근무 시간대 매칭
+
+# duty list
+# key의 숫자는 요일
+morning_ = { 'duty' : '조간', 1 : '06~18', 2 : '06~18', 3 : '06~14', 4 : '06~14', 5 : '06~13', 6 : 'break', 7 : 'break'}
+daytime_ = { 'duty' : '주간', 1 : '18~06', 2 : 'break', 3 : '14~22', 4 : '14~22', 5 : '13~20', 6 : '06~18', 7 : 'break'}
+nightime = { 'duty' : '야간', 1 : 'break', 2 : '18~06', 3 : '22~06', 4 : '22~06', 5 : '20~06', 6 : '18~06', 7 : 'break'}
+
+dutylist = [morning_, daytime_, nightime]   # list[0]: 조간 근무, [1]: 주간 근무, [2] 야간 근무
+
+
+# 특정 날짜의 주수와 요일 매칭 후, 주에 따른 <근무 조>와 요일에 따른 <근무 시간> 리스트에 저장
+def duty(yyyy, mm, dd):
+
+    time_a = dt.datetime(2023,  10,  2) # 날짜 간격을 계산하기 위한 조간 근무 주의 월요일
+    time_b = dt.datetime(yyyy, mm, dd)  # 입력 날짜
+    time_c = str(time_b - time_a)       # 두 날짜의 차 (datetime 형식)
+    
+    # 주수와 요일 계산하기 위한 
+    idx = time_c.index(" ")
+    date_interval = int(time_c[0:idx])
+    print(date_interval)
+
+    weeks = (date_interval // 7) % 3    # 0이면 조간, 1이면 주간, 2면 야간
+    days  = (date_interval % 7) + 1     # 요일
+
+    duty = [dutylist[weeks]['duty'], dutylist[weeks][days]]
+
+    return(duty)
+
 
 ########################################### print calendar ###########################################
 
@@ -105,3 +137,55 @@ d = a.clean_monthly_calendar_json()
 jsonn = json.dumps(d, ensure_ascii=False)
 print(type(jsonn))
 
+
+'''
+########################################### week와 duty를 matching ###########################################
+
+# 날짜 입력시 리스트로 근무조 , 요일 반환
+def weeks_days_for_duty(yyyy, mm, dd):
+
+    time_a = dt.datetime(2023,  9,  11)  # 2023년 9월 4일 기준. 월요일! 이때 전은 조회 불가능
+    time_b = dt.datetime(yyyy, mm, dd)  # 입력 날짜
+    time_c = str(time_b - time_a)       # 두 날짜의 차 (datetime 형식)
+    
+    idx = time_c.index(" ")
+    date_interval = int(time_c[0:idx])  # 날짜 간격
+
+    weeks = (date_interval // 7) % 3    # 이 값이 0이면 조간, 1이면 주간, 2면 야간
+    days  = (date_interval % 7) + 1     # 이 값이 1이면 월요일, 2면 화요일, 3이면 ...
+
+    weeks_days_for_duty = [weeks, days] # [0] = 조간 주간 야간, [1] = 그 주의 몇일차. 요일. 1 = 월요일, 7 = 일요일
+    
+    return(weeks_days_for_duty)
+    
+
+# duty list
+# key의 숫자는 1부터 7까지 월화수목금토일
+morning_ = { 'duty' : '조간', 1 : '06~18', 2 : '06~18', 3 : '06~14', 4 : '06~14', 5 : '06~13', 6 : 'break', 7 : 'break'}
+daytime_ = { 'duty' : '주간', 1 : '18~06', 2 : 'break', 3 : '14~22', 4 : '14~22', 5 : '13~20', 6 : '06~18', 7 : 'break'}
+nightime = { 'duty' : '야간', 1 : 'break', 2 : '18~06', 3 : '22~06', 4 : '22~06', 5 : '20~06', 6 : '18~06', 7 : 'break'}
+
+dutylist = [morning_, daytime_, nightime]   # list[0]: 조간 근무, [1]: 주간 근무, [2] 야간 근무
+
+
+# 날짜를 입력하면 match_duty_ymd[0]에 근무 조, [1]에 근무 시간 저장
+def match_duty (yyyy, mm, dd):
+    
+    match_duty_ymd = [0, 0]
+    
+    for i in range (0, 3):                                      # 주수에 맞는 근무 조 저장
+        if weeks_days_for_duty(yyyy, mm, dd)[0] == i :          # i 값이 0이면 조간, 1은 주간, 2는 야간
+            match_duty_ymd[0] = dutylist[i]['duty']
+            
+            for k in range (1, 8):                              # 그 주수의 그 요일에 해당하는 근무 시간 저장
+                if weeks_days_for_duty(yyyy, mm, dd)[1] == k:   # 1이면 월요일, 2면 화요일, 7은 일요일
+                    match_duty_ymd[1] = dutylist[i][k]
+           
+    print("%d년 %d월 %d일" % (yyyy, mm, dd))
+    print("근무 조: %s, 근무 시간: %s" % (match_duty_ymd[0], match_duty_ymd[1]))
+
+    return(match_duty_ymd)
+
+
+match_duty ()
+            '''
